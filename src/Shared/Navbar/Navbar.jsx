@@ -6,7 +6,8 @@ export default function Navbar() {
   const navLink = (
     <div className="space-x-3">
       <NavLink to={"/"}>Home</NavLink>
-      <NavLink to={"/about"}>About</NavLink>
+      <NavLink to={"/login"}>login</NavLink>
+      <NavLink to={"/beaslider"}>Be A Slider</NavLink>
     </div>
   );
 

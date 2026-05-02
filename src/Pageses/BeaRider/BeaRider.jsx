@@ -1,9 +1,9 @@
 import React from "react";
-import BeaRiderForm from "../Form/BeaRiderForm/BeaRiderForm";
+import BeaRiderForm from "../../Shared/Form/BeaRiderForm/BeaRiderForm";
 
 export default function BeaRider() {
   return (
-    <div className="px-10 md:px-14 py-10 border-2 border-gray-200  md:mt-15 my-10 md:mb-40 rounded-2xl bg-[#DADADA]">
+    <div className="px-10 md:px-14 py-10 border-2 border-gray-200  md:mt-15 my-10 md:mb-40 rounded-2xl bg_all">
       <div className="space-y-4">
         <h1 className=" text-2xl md:text-3xl lg:text-5xl text-[#03373D] font-bold ">Be a Rider</h1>
         <p className="w-full md:w-[80%] lg:w-[70%]">

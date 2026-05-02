@@ -1,3 +1,7 @@
 
 @import "tailwindcss";
 @plugin "daisyui/index.js";
+
+.bg_all{
+    background-color: #DADADA;
+}
