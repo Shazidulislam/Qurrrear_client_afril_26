@@ -65,7 +65,7 @@ export default function Signup() {
           </div>
           <div className="space-y-3">
             <p className="text-s  underline">Forget Password?</p>
-            <button className="btn w-full bg-[#CAEB66]">Login</button>
+            <button className="btn w-full bg-[#CAEB66]">Register</button>
             <p>
               Allready have an account. 
               <Link className="underline text-blue-600" to={"/login"}>
