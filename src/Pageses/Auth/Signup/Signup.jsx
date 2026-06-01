@@ -2,6 +2,7 @@ import React from "react";
 import LoginWithGoogle from "../LoginwithGoogle/loginWithGoogle";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import useAuth from "../../../hooks/useAuth";
 
 export default function Signup() {
   const {
@@ -9,9 +10,23 @@ export default function Signup() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const onSubmit = (data) => {
+
+  const {createUser} = useAuth();
+
+
+  const onSubmit = async(data) => {
     console.log(data);
+
+    try{
+      const result = await createUser(data.email , data.password);
+      console.log(result.user)
+    }
+    catch(error){
+     console.log(error)
+    }
+    createUser(data?.email , data.password)
   };
+
   return (
     <div>
       <div className="space-y-2">

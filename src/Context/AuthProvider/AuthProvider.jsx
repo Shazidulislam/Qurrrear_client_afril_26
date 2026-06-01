@@ -28,8 +28,9 @@ export default function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    const unsubCribe = onAuthStateChanged(auth, (createUser) => {
-      setUser(createUser);
+    const unsubCribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      console.log("User in the auth state change" ,currentUser )
       setLoading(false);
     });
 
