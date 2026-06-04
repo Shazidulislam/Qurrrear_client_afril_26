@@ -1,7 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import LoginWithGoogle from "../LoginwithGoogle/loginWithGoogle";
 import { useForm } from "react-hook-form";
+import useAuth from "../../../hooks/useAuth";
 
 export default function Login() {
   const {
@@ -9,9 +10,21 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const navigate = useNavigate()
+  const {signInUser} = useAuth()
 
-  const onSubmit = (data) => {
+  const onSubmit = async(data) => {
     console.log(data);
+     try {
+      const result = await signInUser(data.email, data.password);
+      console.log(result.user);
+      if(result?.user){
+        alert("LOgin Successfull!")
+        navigate("/")
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -43,23 +56,12 @@ export default function Login() {
               placeholder="Password"
               {...register("password", {
                 required: true,
-                minLength: 6,
-                maxLength: 8,
               })}
             />
             {errors?.password?.type === "required" && (
               <p className="text-error font-bold">Password is required !</p>
             )}
-            {errors?.password?.type === "minLength" && (
-              <p className="text-error font-bold">
-                Password should be 6 characeter longer or more
-              </p>
-            )}
-            {errors?.password?.type === "maxLength" && (
-              <p className="text-error font-bold">
-                Password should be 8 characeter or short
-              </p>
-            )}
+           
           </div>
           <div className="space-y-3">
             <p className="text-s  underline">Forget Password?</p>

@@ -15,6 +15,11 @@ export default function Navbar() {
     </div>
   );
 
+  const handaleLogout=()=>{
+    logOut()
+    alert("Log out successfull!")
+  }
+
   return (
     <div className="navbar bg-base-100 text-black shadow-md rounded-b-md">
       <div className="navbar-start">
@@ -54,7 +59,7 @@ export default function Navbar() {
       <div className="navbar-end">
 
         {
-          user ? <button onClick={logOut} >Log Out</button> : <Link to={"/login"}>Log In</Link>
+          user ? <button onClick={handaleLogout} >Log Out</button> : <Link to={"/login"}>Log In</Link>
         }
       
       </div>

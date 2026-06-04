@@ -1,6 +1,6 @@
 import React from "react";
 import LoginWithGoogle from "../LoginwithGoogle/loginWithGoogle";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
 
@@ -12,17 +12,23 @@ export default function Signup() {
   } = useForm();
 
   const { createUser } = useAuth();
+  const navigate = useNavigate()
 
   const onSubmit = async (data) => {
     console.log(data);
 
     try {
-      const result = await createUser(data.email, data.password);
+      const result = await createUser(data?.email, data?.password);
       console.log(result.user);
+      if(result.user){
+        alert("Register successfull!")
+        navigate("/")
+
+      }
     } catch (error) {
       console.log(error);
     }
-    createUser(data?.email, data.password);
+    
   };
 
   return (

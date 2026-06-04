@@ -8,8 +8,8 @@ const PrivateRoute = ({children}) => {
         return <span className="loading loading-spinner loading-xl"></span>
 
     }
-    if(!user){
-        <Navigate to={"/login"} ></Navigate>
+    if(!user || user === null){
+       return <Navigate to={"/login"} ></Navigate>
     }
   return children;
 }
