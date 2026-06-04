@@ -49,7 +49,7 @@ const SendParcelForm = () => {
             )}
           </div>
 
-          <div className="space-x-4"> 
+          <div className="space-x-4 "> 
             <input
               type="text"
               placeholder="Parcel Title"
