@@ -41,32 +41,40 @@ export default function Login() {
               type="password"
               className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
               placeholder="Password"
-              {...register("password", { required: true,minLength:6 , maxLength: 8 })}
+              {...register("password", {
+                required: true,
+                minLength: 6,
+                maxLength: 8,
+              })}
             />
             {errors?.password?.type === "required" && (
               <p className="text-error font-bold">Password is required !</p>
             )}
-            {
-              errors?.password?.type === "minLength" && <p className="text-error font-bold">Password should be 6 characeter longer or more</p>
-            }
-            {
-              errors?.password?.type === "maxLength" && <p className="text-error font-bold">Password should be 8 characeter  or short</p>
-            }
+            {errors?.password?.type === "minLength" && (
+              <p className="text-error font-bold">
+                Password should be 6 characeter longer or more
+              </p>
+            )}
+            {errors?.password?.type === "maxLength" && (
+              <p className="text-error font-bold">
+                Password should be 8 characeter or short
+              </p>
+            )}
           </div>
           <div className="space-y-3">
             <p className="text-s  underline">Forget Password?</p>
             <button className="btn w-full bg-[#CAEB66]">Login</button>
             <p>
-              Don’t have any account?{" "}
+              New to this site?
               <Link className="underline text-blue-600" to={"/signup"}>
                 Register
               </Link>{" "}
             </p>
           </div>
           <p className="text-center text-xs">Or</p>
-          <LoginWithGoogle />
         </fieldset>
       </form>
+      <LoginWithGoogle />
     </div>
   );
 }

@@ -1,12 +1,16 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import ProFastLogo from "../ProfastLogo/ProfastLogo";
+import useAuth from "../../hooks/useAuth";
 
 export default function Navbar() {
+  const {user , logOut} = useAuth()
   const navLink = (
     <div className="space-x-3">
       <NavLink to={"/"}>Home</NavLink>
-      <NavLink to={"/login"}>login</NavLink>
+      <NavLink to={"/sendParcel"}>Send a Parcel</NavLink>
+      <NavLink to={"/coverage"}>coverage</NavLink>
+      <NavLink to={"/priceCalculate"}>Price Calculate</NavLink>
       <NavLink to={"/beaslider"}>Be A Slider</NavLink>
     </div>
   );
@@ -48,7 +52,11 @@ export default function Navbar() {
         </ul>
       </div>
       <div className="navbar-end">
-        <a className="btn">Button</a>
+
+        {
+          user ? <button onClick={logOut} >Log Out</button> : <Link to={"/login"}>Log In</Link>
+        }
+      
       </div>
     </div>
   );

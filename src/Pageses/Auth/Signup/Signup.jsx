@@ -11,20 +11,18 @@ export default function Signup() {
     formState: { errors },
   } = useForm();
 
-  const {createUser} = useAuth();
+  const { createUser } = useAuth();
 
-
-  const onSubmit = async(data) => {
+  const onSubmit = async (data) => {
     console.log(data);
 
-    try{
-      const result = await createUser(data.email , data.password);
-      console.log(result.user)
+    try {
+      const result = await createUser(data.email, data.password);
+      console.log(result.user);
+    } catch (error) {
+      console.log(error);
     }
-    catch(error){
-     console.log(error)
-    }
-    createUser(data?.email , data.password)
+    createUser(data?.email, data.password);
   };
 
   return (
@@ -42,56 +40,66 @@ export default function Signup() {
               type="text"
               className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
               placeholder="Your Name"
-              {...register("yourName", { required: "Name is required", maxLength: 20 })}
+              {...register("yourName", {
+                required: "Name is required",
+                maxLength: 20,
+              })}
             />
-            {errors?.yourName  && <p className="text-error">{errors?.yourName?.message}</p>  }
+            {errors?.yourName && (
+              <p className="text-error">{errors?.yourName?.message}</p>
+            )}
           </div>
           <div className="space-y-3">
             <label className="text-xs  font-medium">Your Email</label>
             <input
-            type="email"
+              type="email"
               className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
               placeholder="youremail@gmail.com"
               {...register("email", { required: "Email is required" })}
             />
-            {errors?.email  && <p className="text-error">{errors?.email?.message}</p>  }
+            {errors?.email && (
+              <p className="text-error">{errors?.email?.message}</p>
+            )}
           </div>
           <div className="space-y-3">
             <label className="text-xs  font-medium">Password</label>
             <input
-            type="TEXT"
+              type="TEXT"
               className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
               placeholder="Password"
-              {
-                ...register("password" , {required:"Password is required" , 
-                  minLength :{
-                    value:8 , message:"Password must be 8 character or longer."
-                  },
-              
-                  pattern:{
-                    value:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])/,
-                    message:"বড় হাতের, ছোট হাতের, নম্বর ও বিশেষ চিহ্ন থাকতে হবে"
-                  }
-                })
-              }
-               aria-invalid={errors.mail ? "true" : "false"}
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 8,
+                  message: "Password must be 8 character or longer.",
+                },
+
+                pattern: {
+                  value: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])/,
+                  message:
+                    "বড় হাতের, ছোট হাতের, নম্বর ও বিশেষ চিহ্ন থাকতে হবে",
+                },
+              })}
+              aria-invalid={errors.mail ? "true" : "false"}
             />
-            {errors?.password  && <p className="text-error">{errors?.password?.message}</p>  }
+            {errors?.password && (
+              <p className="text-error">{errors?.password?.message}</p>
+            )}
           </div>
           <div className="space-y-3">
             <p className="text-s  underline">Forget Password?</p>
             <button className="btn w-full bg-[#CAEB66]">Register</button>
             <p>
-              Allready have an account. 
+              Allready have an account.
               <Link className="underline text-blue-600" to={"/login"}>
                 Login
               </Link>
             </p>
           </div>
           <p className="text-center text-xs">Or</p>
-          <LoginWithGoogle />
         </fieldset>
       </form>
+      <LoginWithGoogle />
     </div>
   );
 }
