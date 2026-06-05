@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
+  import Swal from "sweetalert2";
 
 const SendParcelForm = () => {
   const {
@@ -9,17 +10,208 @@ const SendParcelForm = () => {
     watch,
     formState: { errors },
   } = useForm();
-  const { user } = useAuth();
+  const { user, data } = useAuth();
 
-
+  const regions = [...new Set(data.map((i) => i.region))];
+  const getDistrrictsByRegion = (region) => {
+    return data.filter((i) => i.region === region).map((w) => w.district);
+  };
   const parcelType = watch("type");
+  const senderRegion = watch("senderRegion");
+  const receiverRegion = watch("receiverRegion");
 
-  const onsubmit = async (data) => {
-   console.log(data , "Data from sendparcelfrom")
+const onsubmit = async (data) => {
+  const weight = Number(data.weight || 0);
+
+  const isSameCity =
+    data.senderServiceCenter === data.recevierServiceCenter;
+
+  const deliveryCost = calculateCost({
+    type: data.type,
+    weight,
+    senderServiceCenter: data.senderServiceCenter,
+    receiverServiceCenter: data.recevierServiceCenter,
+  });
+
+  let breakdown = "";
+
+  // DOCUMENT
+  if (data.type === "document") {
+    breakdown = `
+      <div style="text-align:left">
+        <h3>📦 Parcel Pricing Breakdown</h3>
+
+        <p><strong>Parcel Type:</strong> Document</p>
+        <p><strong>Delivery Area:</strong> ${
+          isSameCity ? "Within City" : "Outside City/District"
+        }</p>
+
+        <hr>
+
+        <p>
+          Base Charge for Document Delivery:
+          <strong>
+            ৳${isSameCity ? 60 : 80}
+          </strong>
+        </p>
+
+        <hr>
+
+        <h3>Total Charge: ৳${deliveryCost}</h3>
+      </div>
+    `;
+  }
+
+  // NON DOCUMENT
+  else {
+    if (weight <= 3) {
+      breakdown = `
+        <div style="text-align:left">
+          <h3>📦 Parcel Pricing Breakdown</h3>
+
+          <p><strong>Parcel Type:</strong> Non-Document</p>
+
+          <p><strong>Weight:</strong> ${weight} KG</p>
+
+          <p><strong>Delivery Area:</strong> ${
+            isSameCity ? "Within City" : "Outside City/District"
+          }</p>
+
+          <hr>
+
+          <p>
+            Base Charge (Up to 3 KG):
+            <strong>
+              ৳${isSameCity ? 110 : 150}
+            </strong>
+          </p>
+
+          <hr>
+
+          <h3>Total Charge: ৳${deliveryCost}</h3>
+        </div>
+      `;
+    } else {
+      const extraKg = weight - 3;
+
+      const baseCharge = isSameCity ? 110 : 150;
+
+      const extraWeightCharge = extraKg * 40;
+
+      const outsideDistrictFee = isSameCity ? 0 : 40;
+
+      breakdown = `
+        <div style="text-align:left">
+          <h3>📦 Parcel Pricing Breakdown</h3>
+
+          <p><strong>Parcel Type:</strong> Non-Document</p>
+
+          <p><strong>Weight:</strong> ${weight} KG</p>
+
+          <p><strong>Delivery Area:</strong> ${
+            isSameCity ? "Within City" : "Outside City/District"
+          }</p>
+
+          <hr>
+
+          <p>
+            Base Charge (First 3 KG):
+            <strong>৳${baseCharge}</strong>
+          </p>
+
+          <p>
+            Extra Weight:
+            ${extraKg} KG × ৳40
+            =
+            <strong>৳${extraWeightCharge}</strong>
+          </p>
+
+          ${
+            !isSameCity
+              ? `
+            <p>
+              Outside District Surcharge:
+              <strong>৳40</strong>
+            </p>
+          `
+              : ""
+          }
+
+          <hr>
+
+          <h2>
+            Total Delivery Charge:
+            ৳${deliveryCost}
+          </h2>
+        </div>
+      `;
+    }
+  }
+
+  const result = await Swal.fire({
+    title: "Delivery Charge Summary",
+    html: breakdown,
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "Confirm Booking",
+    cancelButtonText: "Edit Information",
+  });
+
+  if (result.isConfirmed) {
+    const parcelData = {
+      ...data,
+      deliveryCost,
+      status: "Pending",
+      paymentStatus: "Unpaid",
+      trackingId: `TRK-${Date.now()}`,
+      creationDate: new Date(),
+    };
+
+    console.log(parcelData);
+
+    // await axiosSecure.post("/parcels", parcelData);
+
+    Swal.fire({
+      title: "Booking Confirmed",
+      text: "Your parcel has been submitted successfully.",
+      icon: "success",
+    });
+  }
+};
+  const calculateCost = ({
+    type,
+    weight = 0,
+    senderServiceCenter,
+    receiverServiceCenter,
+  }) => {
+    const isSameCity = senderServiceCenter === receiverServiceCenter;
+
+    // DOCUMENT
+    if (type === "document") {
+      return isSameCity ? 60 : 80;
+    }
+
+    // NON DOCUMENT <= 3 KG
+    if (weight <= 3) {
+      return isSameCity ? 110 : 150;
+    }
+
+    // NON DOCUMENT > 3 KG
+    const extraWeight = weight - 3;
+
+    if (isSameCity) {
+      return 110 + extraWeight * 40;
+    }
+
+    return 150 + extraWeight * 40 + 40;
   };
   return (
     <div>
-      <form onSubmit={handleSubmit(onsubmit ,  (errors) => console.log("Form Errors:", errors))} >
+      <form
+        onSubmit={handleSubmit(onsubmit, (errors) =>
+          console.log("Form Errors:", errors),
+        )}
+      >
         <h2 className="text-xl pb-5 sm:pb-10 sm:text-2xl font-semibold">
           Enter your parcel details
         </h2>
@@ -93,13 +285,17 @@ const SendParcelForm = () => {
                 className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
               />
 
-              <input
-                placeholder="Pickup Warehouse"
-                {...register("senderServiceCenter", {
+              <select
+                {...register("senderRegion", {
                   required: true,
                 })}
-                className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
-              />
+                className="select w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
+              >
+                <option value="">Select Region</option>
+                {regions.map((region) => (
+                  <option key={region}>{region}</option>
+                ))}
+              </select>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -119,17 +315,18 @@ const SendParcelForm = () => {
                 className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
               />
             </div>
-
+            {/* region */}
             <select
-              {...register("senderRegion", {
-                // required: true,
+              placeholder="Select Warehouse"
+              {...register("senderServiceCenter", {
+                required: true,
               })}
-              className="select w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
+              className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
             >
-              <option value="">Select Region</option>
-              <option value="">Select Region</option>
-              <option value="">Select Region</option>
-              <option value="">Select Region</option>
+              <option value="">Select Pickup Warehouse</option>
+              {getDistrrictsByRegion(senderRegion)?.map((district) => (
+                <option>{district}</option>
+              ))}
             </select>
 
             <textarea
@@ -147,7 +344,7 @@ const SendParcelForm = () => {
 
             <div className="grid sm:grid-cols-2 gap-4">
               <input
-              type="text"
+                type="text"
                 placeholder="Receiver Name"
                 {...register("receiverName", {
                   required: true,
@@ -155,14 +352,17 @@ const SendParcelForm = () => {
                 className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
               />
 
-              <input
-              type="text"
-                placeholder="Delivery Warehouse"
-                {...register("receiverServiceCenter", {
+              <select
+                {...register("receiverRegion", {
                   required: true,
                 })}
-                className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
-              />
+                className="select w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
+              >
+                <option value="">Select Region</option>
+                {regions.map((region) => (
+                  <option key={region}>{region}</option>
+                ))}
+              </select>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -176,7 +376,7 @@ const SendParcelForm = () => {
               />
 
               <input
-               type="text"
+                type="text"
                 placeholder="Receiver Contact"
                 {...register("receiverContact", {
                   required: true,
@@ -186,16 +386,16 @@ const SendParcelForm = () => {
             </div>
 
             <select
-              {...register("receiverRegion", {
-                // required: true,
+              placeholder="Delivery Warehouse"
+              {...register("recevierServiceCenter", {
+                required: true,
               })}
-              className="select w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
+              className="input w-full border-2 mt-2 outline-none border-[#CBD5E1]  shadow-none"
             >
-              <option value="">Select Region</option>
-              <option value="">Select Region</option>
-              <option value="">Select Region</option>
-              <option value="">Select Region</option>
-              <option value="">Select Region</option>
+              <option value="">Select Delivery Warehouse</option>
+              {getDistrrictsByRegion(receiverRegion)?.map((district) => (
+                <option>{district}</option>
+              ))}
             </select>
 
             <textarea
@@ -208,7 +408,7 @@ const SendParcelForm = () => {
             />
           </div>
         </div>
-         <button className="btn w-full bg-[#CAEB66] mt-10">Submit</button>
+        <button className="btn w-full bg-[#CAEB66] mt-10">Submit</button>
       </form>
     </div>
   );

@@ -13,6 +13,7 @@ import { auth } from "../../firebase/firebase.init";
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [data , setData] = useState(null)
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -47,6 +48,18 @@ export default function AuthProvider({ children }) {
     };
   }, []);
 
+  useEffect(()=>{
+    const fetchData = async()=>{
+      const res = await fetch("data/data.json");
+      const data = await res.json()
+      setData(data);
+      console.log(data)
+    }
+    return()=>{
+       fetchData()
+    }
+  },[])
+
   const authInfo = {
     user,
     loading,
@@ -54,6 +67,7 @@ export default function AuthProvider({ children }) {
     signInUser,
     logOut,
     signInWithGoogle,
+    data,
   };
 
   return <AuthContext value={authInfo}>{children}</AuthContext>;
