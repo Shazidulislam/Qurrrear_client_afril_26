@@ -3,6 +3,19 @@ import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
   import Swal from "sweetalert2";
 
+  const generateTrackingId = () => {
+  const now = new Date();
+
+  const datePart =
+    now.getFullYear().toString() +
+    String(now.getMonth() + 1).padStart(2, "0") +
+    String(now.getDate()).padStart(2, "0");
+
+  const timePart = Date.now().toString().slice(-4);
+
+  return `PLC-${datePart}-${timePart}`;
+};
+
 const SendParcelForm = () => {
   const {
     register,
@@ -159,15 +172,19 @@ const onsubmit = async (data) => {
 
   if (result.isConfirmed) {
     const parcelData = {
-      ...data,
-      deliveryCost,
-      status: "Pending",
+      ...data,   
+
+      deliveryCost: deliveryCost,
+      createtorEmail:user?.email,
+      deliveryStatus: "Pending",
       paymentStatus: "Unpaid",
-      trackingId: `TRK-${Date.now()}`,
-      creationDate: new Date(),
+      trackingId: generateTrackingId(),
+      creationDate: new Date().toDateString(),
     };
 
     console.log(parcelData);
+
+    // save data to the server
 
     // await axiosSecure.post("/parcels", parcelData);
 
